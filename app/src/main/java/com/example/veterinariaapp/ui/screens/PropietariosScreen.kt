@@ -27,6 +27,19 @@ fun PropietariosScreen(application: VeterinariaApplication) {
     val propietarios by propietarioViewModel.propietarios.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var editingPropietario by remember { mutableStateOf<Propietario?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    // Filtrar propietarios por búsqueda
+    val propietariosFiltrados = if (searchQuery.isBlank()) {
+        propietarios
+    } else {
+        propietarios.filter {
+            it.nombre.contains(searchQuery, ignoreCase = true) ||
+                    it.telefono.contains(searchQuery, ignoreCase = true) ||
+                    it.email.contains(searchQuery, ignoreCase = true) ||
+                    it.direccion.contains(searchQuery, ignoreCase = true)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -56,6 +69,24 @@ fun PropietariosScreen(application: VeterinariaApplication) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Barra de búsqueda
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Buscar propietario...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = {
+                if (searchQuery.isNotBlank()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Clear, contentDescription = "Limpiar")
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -68,13 +99,20 @@ fun PropietariosScreen(application: VeterinariaApplication) {
                     fontWeight = FontWeight.Bold
                 )
                 Text("Total de propietarios: ${propietarios.size}")
+                if (searchQuery.isNotBlank()) {
+                    Text(
+                        text = "Mostrando: ${propietariosFiltrados.size} propietarios",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
-            items(propietarios) { propietario ->
+            items(propietariosFiltrados) { propietario ->
                 PropietarioCard(
                     propietario = propietario,
                     onEdit = {
@@ -83,6 +121,38 @@ fun PropietariosScreen(application: VeterinariaApplication) {
                     },
                     onDelete = { propietarioViewModel.deletePropietario(it) }
                 )
+            }
+            if (propietariosFiltrados.isEmpty() && propietarios.isNotEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "No se encontraron propietarios",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "Intenta con otros términos de búsqueda",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -181,6 +251,11 @@ fun PropietarioDialog(
     var email by remember { mutableStateOf(propietario?.email ?: "") }
     var direccion by remember { mutableStateOf(propietario?.direccion ?: "") }
 
+    var nombreError by remember { mutableStateOf(false) }
+    var telefonoError by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf(false) }
+    var direccionError by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -190,50 +265,93 @@ fun PropietarioDialog(
             Column {
                 OutlinedTextField(
                     value = nombre,
-                    onValueChange = { nombre = it },
+                    onValueChange = {
+                        nombre = it
+                        if (nombreError) nombreError = false
+                    },
                     label = { Text("Nombre completo") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = nombreError,
+                    supportingText = {
+                        if (nombreError) {
+                            Text("El nombre no puede estar vacío.")
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = telefono,
-                    onValueChange = { telefono = it },
+                    onValueChange = {
+                        telefono = it
+                        if (telefonoError) telefonoError = false
+                    },
                     label = { Text("Teléfono") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = telefonoError,
+                    supportingText = {
+                        if (telefonoError) {
+                            Text("El teléfono no puede estar vacío.")
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        if (emailError) emailError = false
+                    },
                     label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = emailError,
+                    supportingText = {
+                        if (emailError) {
+                            Text("El email no puede estar vacío.")
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = direccion,
-                    onValueChange = { direccion = it },
+                    onValueChange = {
+                        direccion = it
+                        if (direccionError) direccionError = false
+                    },
                     label = { Text("Dirección") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = direccionError,
+                    supportingText = {
+                        if (direccionError) {
+                            Text("La dirección no puede estar vacía.")
+                        }
+                    }
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val nuevoPropietario = Propietario(
-                        propietarioId = propietario?.propietarioId ?: 0,
-                        nombre = nombre,
-                        telefono = telefono,
-                        email = email,
-                        direccion = direccion
-                    )
-                    onSave(nuevoPropietario)
+                    nombreError = nombre.trim().isEmpty()
+                    telefonoError = telefono.trim().isEmpty()
+                    emailError = email.trim().isEmpty()
+                    direccionError = direccion.trim().isEmpty()
+
+                    if (!nombreError && !telefonoError && !emailError && !direccionError) {
+                        val nuevoPropietario = Propietario(
+                            propietarioId = propietario?.propietarioId ?: 0,
+                            nombre = nombre,
+                            telefono = telefono,
+                            email = email,
+                            direccion = direccion
+                        )
+                        onSave(nuevoPropietario)
+                    }
                 }
             ) {
                 Text("Guardar")
