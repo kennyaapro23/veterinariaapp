@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.veterinariaapp.VeterinariaApplication
@@ -61,9 +63,9 @@ fun MascotasScreen(
         val propietario = propietarios.find { it.propietarioId == mascota.propietarioId }
         val matchesSearch = if (searchQuery.isBlank()) true else {
             mascota.nombre.contains(searchQuery, ignoreCase = true) ||
-            mascota.especie.contains(searchQuery, ignoreCase = true) ||
-            mascota.raza.contains(searchQuery, ignoreCase = true) ||
-            propietario?.nombre?.contains(searchQuery, ignoreCase = true) == true
+                    mascota.especie.contains(searchQuery, ignoreCase = true) ||
+                    mascota.raza.contains(searchQuery, ignoreCase = true) ||
+                    propietario?.nombre?.contains(searchQuery, ignoreCase = true) == true
         }
         val matchesPropietario = filterByPropietario?.let { mascota.propietarioId == it } ?: true
         val matchesCategoria = filterByCategoria?.let { mascota.categoriaId == it } ?: true
@@ -484,13 +486,45 @@ fun MascotaDialog(
     onSave: (Mascota) -> Unit
 ) {
     var nombre by remember { mutableStateOf(mascota?.nombre ?: "") }
-    var especie by remember { mutableStateOf(mascota?.especie ?: "") }
-    var raza by remember { mutableStateOf(mascota?.raza ?: "") }
     var edad by remember { mutableStateOf(mascota?.edad?.toString() ?: "") }
     var sexo by remember { mutableStateOf(mascota?.sexo ?: "Macho") }
     var propietarioSeleccionado by remember { mutableStateOf(mascota?.propietarioId ?: (propietarios.firstOrNull()?.propietarioId ?: 0L)) }
+
+    // Variables para los menús desplegables de Especie y Raza
+    var expandedEspecie by remember { mutableStateOf(false) }
+    var expandedRaza by remember { mutableStateOf(false) }
     var expandedSexo by remember { mutableStateOf(false) }
     var expandedPropietario by remember { mutableStateOf(false) }
+
+    var especieSeleccionada by remember { mutableStateOf(mascota?.especie ?: "") }
+    var razaSeleccionada by remember { mutableStateOf(mascota?.raza ?: "") }
+
+    // Listas de opciones
+    val especies = listOf("Perro", "Gato", "Ave", "Roedor", "Reptil", "Conejo")
+    val razasPerro = listOf("Labrador Retriever", "Pastor Alemán", "Bulldog", "Poodle", "Chihuahua", "Mestizo")
+    val razasGato = listOf("Siamés", "Persa", "Maine Coon", "Bengalí", "Mestizo")
+    val razasAve = listOf("Canario", "Periquito", "Cacatúa", "Guacamayo", "Ninfa")
+    val razasRoedor = listOf("Hámster", "Cuy", "Jerbo", "Chinchilla")
+    val razasReptil = listOf("Iguana", "Gecko", "Serpiente", "Tortuga")
+    val razasConejo = listOf("Enano", "Belier", "Angora", "Mini Lop")
+    val razasNoEspecificadas = listOf("Sin especificar")
+
+    val razasDisponibles = when (especieSeleccionada) {
+        "Perro" -> razasPerro
+        "Gato" -> razasGato
+        "Ave" -> razasAve
+        "Roedor" -> razasRoedor
+        "Reptil" -> razasReptil
+        "Conejo" -> razasConejo
+        else -> razasNoEspecificadas
+    }
+
+    // Estados para los errores
+    var nombreError by remember { mutableStateOf(false) }
+    var especieError by remember { mutableStateOf(false) }
+    var razaError by remember { mutableStateOf(false) }
+    var edadError by remember { mutableStateOf(false) }
+    var propietarioError by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -501,36 +535,121 @@ fun MascotaDialog(
             Column {
                 OutlinedTextField(
                     value = nombre,
-                    onValueChange = { nombre = it },
+                    onValueChange = {
+                        nombre = it
+                        if (nombreError) nombreError = false
+                    },
                     label = { Text("Nombre de la mascota") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = nombreError,
+                    supportingText = {
+                        if (nombreError) {
+                            Text("El nombre no puede estar vacío.")
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = especie,
-                    onValueChange = { especie = it },
-                    label = { Text("Especie (Perro, Gato, etc.)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Menú desplegable para Especie
+                ExposedDropdownMenuBox(
+                    expanded = expandedEspecie,
+                    onExpandedChange = { expandedEspecie = !expandedEspecie }
+                ) {
+                    OutlinedTextField(
+                        value = especieSeleccionada,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Especie") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEspecie) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        isError = especieError,
+                        supportingText = {
+                            if (especieError) {
+                                Text("Debe seleccionar una especie.")
+                            }
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expandedEspecie,
+                        onDismissRequest = { expandedEspecie = false }
+                    ) {
+                        especies.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion) },
+                                onClick = {
+                                    especieSeleccionada = opcion
+                                    expandedEspecie = false
+                                    // Resetear la raza al cambiar la especie
+                                    razaSeleccionada = ""
+                                    if (especieError) especieError = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = raza,
-                    onValueChange = { raza = it },
-                    label = { Text("Raza") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Menú desplegable para Raza (dependiente de la especie)
+                ExposedDropdownMenuBox(
+                    expanded = expandedRaza,
+                    onExpandedChange = { expandedRaza = !expandedRaza }
+                ) {
+                    OutlinedTextField(
+                        value = razaSeleccionada,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Raza") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedRaza) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        isError = razaError,
+                        supportingText = {
+                            if (razaError) {
+                                Text("Debe seleccionar una raza.")
+                            }
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expandedRaza,
+                        onDismissRequest = { expandedRaza = false }
+                    ) {
+                        razasDisponibles.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion) },
+                                onClick = {
+                                    razaSeleccionada = opcion
+                                    expandedRaza = false
+                                    if (razaError) razaError = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = edad,
-                    onValueChange = { edad = it },
+                    onValueChange = {
+                        edad = it
+                        if (edadError) edadError = false
+                    },
                     label = { Text("Edad (años)") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = edadError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText = {
+                        if (edadError) {
+                            Text("La edad no puede estar vacía y debe ser un número.")
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -577,10 +696,16 @@ fun MascotaDialog(
                         onValueChange = { },
                         readOnly = true,
                         label = { Text("Propietario") },
+                        isError = propietarioError,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPropietario) },
                         modifier = Modifier
                             .menuAnchor()
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        supportingText = {
+                            if (propietarioError) {
+                                Text("Debe seleccionar un propietario.")
+                            }
+                        }
                     )
 
                     ExposedDropdownMenu(
@@ -593,6 +718,7 @@ fun MascotaDialog(
                                 onClick = {
                                     propietarioSeleccionado = propietario.propietarioId
                                     expandedPropietario = false
+                                    if (propietarioError) propietarioError = false
                                 }
                             )
                         }
@@ -603,17 +729,44 @@ fun MascotaDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val edadInt = edad.toIntOrNull() ?: 0
-                    val nuevaMascota = Mascota(
-                        mascotaId = mascota?.mascotaId ?: 0,
-                        nombre = nombre,
-                        especie = especie,
-                        raza = raza,
-                        edad = edadInt,
-                        sexo = sexo,
-                        propietarioId = propietarioSeleccionado
-                    )
-                    onSave(nuevaMascota)
+                    // Resetear los estados de error
+                    nombreError = false
+                    especieError = false
+                    razaError = false
+                    edadError = false
+                    propietarioError = false
+
+                    // Validar cada campo
+                    if (nombre.trim().isEmpty()) {
+                        nombreError = true
+                    }
+                    if (especieSeleccionada.isEmpty()) {
+                        especieError = true
+                    }
+                    if (razaSeleccionada.isEmpty()) {
+                        razaError = true
+                    }
+                    if (edad.trim().isEmpty() || edad.toIntOrNull() == null) {
+                        edadError = true
+                    }
+                    if (propietarioSeleccionado == 0L) {
+                        propietarioError = true
+                    }
+
+                    // Si no hay errores, guardar
+                    if (!nombreError && !especieError && !razaError && !edadError && !propietarioError) {
+                        val edadInt = edad.toIntOrNull() ?: 0
+                        val nuevaMascota = Mascota(
+                            mascotaId = mascota?.mascotaId ?: 0,
+                            nombre = nombre,
+                            especie = especieSeleccionada,
+                            raza = razaSeleccionada,
+                            edad = edadInt,
+                            sexo = sexo,
+                            propietarioId = propietarioSeleccionado
+                        )
+                        onSave(nuevaMascota)
+                    }
                 }
             ) {
                 Text("Guardar")

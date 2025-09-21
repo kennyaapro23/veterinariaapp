@@ -35,7 +35,7 @@ fun ServiciosScreen(application: VeterinariaApplication) {
     } else {
         servicios.filter {
             it.nombre.contains(searchQuery, ignoreCase = true) ||
-            it.descripcion.contains(searchQuery, ignoreCase = true)
+                    it.descripcion.contains(searchQuery, ignoreCase = true)
         }
     }
 
@@ -194,6 +194,10 @@ fun ServicioDialog(
     var descripcion by remember { mutableStateOf(servicio?.descripcion ?: "") }
     var costo by remember { mutableStateOf(servicio?.costo?.toString() ?: "") }
 
+    // Estados de error
+    var nombreError by remember { mutableStateOf(false) }
+    var costoError by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -203,9 +207,18 @@ fun ServicioDialog(
             Column {
                 OutlinedTextField(
                     value = nombre,
-                    onValueChange = { nombre = it },
+                    onValueChange = {
+                        nombre = it
+                        if (nombreError) nombreError = false
+                    },
                     label = { Text("Nombre del servicio") },
                     modifier = Modifier.fillMaxWidth(),
+                    isError = nombreError,
+                    supportingText = {
+                        if (nombreError) {
+                            Text("El nombre no puede estar vacío.")
+                        }
+                    },
                     placeholder = { Text("Ej: Consulta general, Vacunación, Cirugía") }
                 )
 
@@ -213,9 +226,18 @@ fun ServicioDialog(
 
                 OutlinedTextField(
                     value = costo,
-                    onValueChange = { costo = it },
+                    onValueChange = {
+                        costo = it
+                        if (costoError) costoError = false
+                    },
                     label = { Text("Costo ($)") },
                     modifier = Modifier.fillMaxWidth(),
+                    isError = costoError,
+                    supportingText = {
+                        if (costoError) {
+                            Text("El costo debe ser un número válido y no puede estar vacío.")
+                        }
+                    },
                     placeholder = { Text("Ej: 50.00") }
                 )
 
@@ -235,14 +257,29 @@ fun ServicioDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val costoDouble = costo.toDoubleOrNull() ?: 0.0
-                    val nuevoServicio = Servicio(
-                        servicioId = servicio?.servicioId ?: 0,
-                        nombre = nombre,
-                        descripcion = descripcion,
-                        costo = costoDouble
-                    )
-                    onSave(nuevoServicio)
+                    // Reiniciar estados de error
+                    nombreError = false
+                    costoError = false
+
+                    // Validar campos
+                    if (nombre.trim().isEmpty()) {
+                        nombreError = true
+                    }
+                    val costoDouble = costo.toDoubleOrNull()
+                    if (costo.trim().isEmpty() || costoDouble == null) {
+                        costoError = true
+                    }
+
+                    // Si no hay errores, guardar
+                    if (!nombreError && !costoError) {
+                        val nuevoServicio = Servicio(
+                            servicioId = servicio?.servicioId ?: 0,
+                            nombre = nombre,
+                            descripcion = descripcion,
+                            costo = costoDouble ?: 0.0
+                        )
+                        onSave(nuevoServicio)
+                    }
                 }
             ) {
                 Text("Guardar")

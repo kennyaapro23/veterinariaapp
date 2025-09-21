@@ -53,9 +53,9 @@ fun HistorialMedicoScreen(
         val servicio = servicios.find { it.servicioId == registro.servicioId }
         if (searchQuery.isBlank()) true else {
             registro.observaciones.contains(searchQuery, ignoreCase = true) ||
-            registro.fecha.contains(searchQuery, ignoreCase = true) ||
-            mascota?.nombre?.contains(searchQuery, ignoreCase = true) == true ||
-            servicio?.nombre?.contains(searchQuery, ignoreCase = true) == true
+                    registro.fecha.contains(searchQuery, ignoreCase = true) ||
+                    mascota?.nombre?.contains(searchQuery, ignoreCase = true) == true ||
+                    servicio?.nombre?.contains(searchQuery, ignoreCase = true) == true
         }
     }
 
@@ -385,11 +385,17 @@ fun HistorialDialog(
     var servicioSeleccionado by remember {
         mutableStateOf(historial?.servicioId ?: (servicios.firstOrNull()?.servicioId ?: 0L))
     }
-    var fecha by remember {
-        mutableStateOf(historial?.fecha ?: SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
-    }
     var observaciones by remember { mutableStateOf(historial?.observaciones ?: "") }
 
+    // Estados para el selector de fecha
+    var showDatePicker by remember { mutableStateOf(false) }
+    var fechaSeleccionada by remember {
+        mutableStateOf(historial?.fecha?.let {
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it)?.time
+        } ?: System.currentTimeMillis())
+    }
+
+    // Estados para los menús desplegables
     var expandedMascota by remember { mutableStateOf(false) }
     var expandedServicio by remember { mutableStateOf(false) }
 
@@ -470,10 +476,17 @@ fun HistorialDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Selector de fecha
                 OutlinedTextField(
-                    value = fecha,
-                    onValueChange = { fecha = it },
-                    label = { Text("Fecha (YYYY-MM-DD)") },
+                    value = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(fechaSeleccionada)),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Fecha de consulta") },
+                    trailingIcon = {
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha")
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -492,11 +505,12 @@ fun HistorialDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    val fechaFormateada = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(fechaSeleccionada))
                     val nuevoHistorial = HistorialMedico(
                         historialId = historial?.historialId ?: 0,
                         mascotaId = mascotaSeleccionada,
                         servicioId = servicioSeleccionado,
-                        fecha = fecha,
+                        fecha = fechaFormateada,
                         observaciones = observaciones
                     )
                     onSave(nuevoHistorial)
@@ -511,4 +525,36 @@ fun HistorialDialog(
             }
         }
     )
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = fechaSeleccionada
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val selectedDate = datePickerState.selectedDateMillis
+                        if (selectedDate != null) {
+                            // Corrección para la zona horaria
+                            val offset = TimeZone.getDefault().getOffset(selectedDate)
+                            fechaSeleccionada = selectedDate + offset
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 }
