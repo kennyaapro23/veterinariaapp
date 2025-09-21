@@ -16,9 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.veterinariaapp.ui.theme.VeterinariaappTheme
 import com.example.veterinariaapp.ui.screens.*
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Llama a installSplashScreen() antes de super.onCreate()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
