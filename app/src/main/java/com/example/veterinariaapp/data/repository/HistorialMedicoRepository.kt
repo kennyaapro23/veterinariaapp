@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 class HistorialMedicoRepository(private val historialMedicoDao: HistorialMedicoDao) {
 
-    fun getAllHistorialMedico(): Flow<List<HistorialMedico>> = historialMedicoDao.getAllHistorialMedico()
+    // Este es el método corregido. Ahora se llama 'getAllHistorial'
+    // para que coincida con el ViewModel y el DAO.
+    fun getAllHistorial(): Flow<List<HistorialMedico>> = historialMedicoDao.getAllHistorial()
 
     suspend fun getHistorialById(id: Long): HistorialMedico? = historialMedicoDao.getHistorialById(id)
 
