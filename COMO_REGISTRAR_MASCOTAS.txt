@@ -1,0 +1,52 @@
+🏥 GUÍA PASO A PASO: CÓMO REGISTRAR MASCOTAS
+==============================================
+
+📱 EJECUTAR LA APLICACIÓN:
+1. Abre Android Studio
+2. File → Sync Project with Gradle Files
+3. Presiona ▶️ Run (o Shift + F10)
+4. Espera a que compile e instale
+
+🐾 REGISTRAR UNA NUEVA MASCOTA:
+
+PASO 1: Navegar a Mascotas
+- En el menú inferior, toca "Mascotas" (icono de cara)
+
+PASO 2: Abrir el Formulario
+- Presiona el botón ➕ (FloatingActionButton naranja)
+- Se abrirá un diálogo "➕ Nueva Mascota"
+
+PASO 3: Llenar los Datos
+✅ Nombre: Ej. "Rex", "Luna", "Max"
+✅ Especie: Ej. "Perro", "Gato", "Conejo"
+✅ Raza: Ej. "Labrador", "Persa", "Golden Retriever"
+✅ Edad: Solo números (años)
+✅ Sexo: Toca el campo → Selecciona "Macho" o "Hembra"
+✅ Propietario: Toca el campo → Selecciona de la lista
+
+PASO 4: Guardar
+- Presiona "Guardar"
+- La mascota aparecerá inmediatamente en la lista
+
+📋 VER HISTORIAL MÉDICO:
+- En cada tarjeta de mascota, presiona el botón ℹ️ (Info)
+- Se abrirá el historial médico de esa mascota específica
+
+➕ AGREGAR REGISTRO MÉDICO:
+- Desde el historial, presiona ➕
+- Selecciona servicio, fecha y observaciones
+- Presiona "Guardar"
+
+🔍 FUNCIONES DE BÚSQUEDA:
+- Botón 🔍: Buscar por nombre de mascota o propietario
+- Botón ⚙️: Filtrar por propietario específico
+
+📊 DATOS PRECARGADOS:
+Al abrir la app verás 5 mascotas de ejemplo:
+- Max (Golden Retriever)
+- Luna (Gato Persa)
+- Rocky (Bulldog)
+- Bella (Siamés)
+- Charlie (Labrador)
+
+¡Puedes registrar tantas mascotas nuevas como quieras!
