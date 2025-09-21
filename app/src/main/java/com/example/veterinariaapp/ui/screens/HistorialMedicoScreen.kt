@@ -59,10 +59,12 @@ fun HistorialMedicoScreen(
         }
     }
 
-    // Cargar historial de la mascota específica si se proporciona
-    LaunchedEffect(mascotaId) {
-        if (mascotaId != null) {
-            historialViewModel.getHistorialByMascota(mascotaId)
+    // Cargar historial de la mascota específica o todo el historial
+    LaunchedEffect(selectedMascotaId) {
+        if (selectedMascotaId == 0L) {
+            historialViewModel.getAllHistorial()
+        } else {
+            historialViewModel.getHistorialByMascota(selectedMascotaId)
         }
     }
 
@@ -174,7 +176,7 @@ fun HistorialMedicoScreen(
                         onExpandedChange = { expandedMascota = !expandedMascota }
                     ) {
                         OutlinedTextField(
-                            value = mascotas.find { it.mascotaId == selectedMascotaId }?.nombre ?: "Todas las mascotas",
+                            value = if (selectedMascotaId == 0L) "Todas las mascotas" else mascotas.find { it.mascotaId == selectedMascotaId }?.nombre ?: "Todas las mascotas",
                             onValueChange = { },
                             readOnly = true,
                             label = { Text("Filtrar por mascota") },
@@ -200,7 +202,6 @@ fun HistorialMedicoScreen(
                                     text = { Text("${mascota.nombre} (${mascota.especie})") },
                                     onClick = {
                                         selectedMascotaId = mascota.mascotaId
-                                        historialViewModel.getHistorialByMascota(mascota.mascotaId)
                                         expandedMascota = false
                                     }
                                 )

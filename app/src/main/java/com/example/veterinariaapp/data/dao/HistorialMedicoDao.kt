@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HistorialMedicoDao {
-    @Query("SELECT * FROM historial_medico")
-    fun getAllHistorialMedico(): Flow<List<HistorialMedico>>
+    @Query("SELECT * FROM historial_medico ORDER BY fecha DESC")
+    fun getAllHistorial(): Flow<List<HistorialMedico>>
 
     // Consulta personalizada: Obtener el historial médico completo de una mascota
     @Query("SELECT * FROM historial_medico WHERE mascotaId = :mascotaId ORDER BY fecha DESC")

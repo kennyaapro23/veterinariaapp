@@ -18,6 +18,15 @@ class HistorialMedicoViewModel(private val repository: HistorialMedicoRepository
     private val _registroSeleccionado = MutableStateFlow<HistorialMedico?>(null)
     val registroSeleccionado: StateFlow<HistorialMedico?> = _registroSeleccionado.asStateFlow()
 
+    // Método para obtener todos los registros del historial médico
+    fun getAllHistorial() {
+        viewModelScope.launch {
+            repository.getAllHistorial().collect {
+                _historialMedico.value = it
+            }
+        }
+    }
+
     fun insertHistorial(historial: HistorialMedico) {
         viewModelScope.launch {
             repository.insertHistorial(historial)

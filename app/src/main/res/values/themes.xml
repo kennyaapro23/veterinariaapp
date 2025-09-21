@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Veterinariaapp" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Veterinariaapp" parent="Theme.Material3.Light.NoActionBar" />
+
+    <style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Veterinariaapp</item>
+    </style>
+
 </resources>
