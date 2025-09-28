@@ -4,6 +4,8 @@ import androidx.room.*
 import com.example.veterinariaapp.data.entities.Categoria
 import kotlinx.coroutines.flow.Flow
 
+// CategoriaDao.kt: DAO para operaciones CRUD sobre la entidad Categoria.
+
 @Dao
 interface CategoriaDao {
     @Query("SELECT * FROM categorias ORDER BY nombre ASC")

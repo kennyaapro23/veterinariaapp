@@ -4,6 +4,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+// Cita.kt: Entidad Room que representa una cita médica para una mascota.
+// Contiene información sobre la mascota, el servicio requerido, la fecha y hora de la cita,
+// el motivo de la consulta y el estado de la cita (pendiente, completada, cancelada).
+
 @Entity(
     tableName = "citas",
     foreignKeys = [

@@ -1,3 +1,5 @@
+// MascotasScreen.kt: Pantalla para mostrar y gestionar las mascotas registradas.
+
 package com.example.veterinariaapp.ui.screens
 
 import androidx.compose.foundation.background

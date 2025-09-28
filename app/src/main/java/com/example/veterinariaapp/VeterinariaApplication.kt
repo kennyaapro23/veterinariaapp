@@ -5,6 +5,10 @@ import com.example.veterinariaapp.data.DataInitializer
 import com.example.veterinariaapp.data.database.VeterinariaDatabase
 import com.example.veterinariaapp.data.repository.*
 
+/**
+ * VeterinariaApplication.kt: Clase de aplicación, inicializa configuraciones globales.
+ */
+
 class VeterinariaApplication : Application() {
 
     val database by lazy { VeterinariaDatabase.getDatabase(this) }

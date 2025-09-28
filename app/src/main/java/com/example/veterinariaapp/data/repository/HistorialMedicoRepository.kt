@@ -4,6 +4,7 @@ import com.example.veterinariaapp.data.dao.HistorialMedicoDao
 import com.example.veterinariaapp.data.entities.HistorialMedico
 import kotlinx.coroutines.flow.Flow
 
+// HistorialMedicoRepository.kt: Lógica de acceso a datos para la entidad HistorialMedico.
 class HistorialMedicoRepository(private val historialMedicoDao: HistorialMedicoDao) {
 
     // Este es el método corregido. Ahora se llama 'getAllHistorial'

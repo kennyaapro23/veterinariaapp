@@ -4,6 +4,8 @@ import com.example.veterinariaapp.data.dao.ServicioDao
 import com.example.veterinariaapp.data.entities.Servicio
 import kotlinx.coroutines.flow.Flow
 
+// ServicioRepository.kt: Lógica de acceso a datos para la entidad Servicio.
+
 class ServicioRepository(private val servicioDao: ServicioDao) {
 
     fun getAllServicios(): Flow<List<Servicio>> = servicioDao.getAllServicios()

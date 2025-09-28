@@ -7,6 +7,10 @@ import android.content.Context
 import com.example.veterinariaapp.data.entities.*
 import com.example.veterinariaapp.data.dao.*
 
+/**
+ * VeterinariaDatabase.kt: Define la base de datos Room y sus entidades.
+ */
+
 @Database(
     entities = [
         Propietario::class,

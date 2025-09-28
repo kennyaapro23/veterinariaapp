@@ -4,6 +4,8 @@ import com.example.veterinariaapp.data.dao.CitaDao
 import com.example.veterinariaapp.data.entities.Cita
 import kotlinx.coroutines.flow.Flow
 
+// CitaRepository.kt: Lógica de acceso a datos para la entidad Cita.
+
 class CitaRepository(private val citaDao: CitaDao) {
 
     fun getAllCitas(): Flow<List<Cita>> = citaDao.getAllCitas()

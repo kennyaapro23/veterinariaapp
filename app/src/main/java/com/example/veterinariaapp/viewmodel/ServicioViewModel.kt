@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// ServicioViewModel.kt: ViewModel para la gestión de servicios veterinarios.
+
 class ServicioViewModel(private val repository: ServicioRepository) : ViewModel() {
 
     private val _servicios = MutableStateFlow<List<Servicio>>(emptyList())

@@ -3,6 +3,7 @@ package com.example.veterinariaapp.data.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// Categoria.kt: Entidad Room que representa una categoría de mascota o servicio.
 @Entity(tableName = "categorias")
 data class Categoria(
     @PrimaryKey(autoGenerate = true)

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// HistorialMedicoViewModel.kt: ViewModel para la gestión del historial médico de mascotas.
 class HistorialMedicoViewModel(private val repository: HistorialMedicoRepository) : ViewModel() {
 
     private val _historialMedico = MutableStateFlow<List<HistorialMedico>>(emptyList())

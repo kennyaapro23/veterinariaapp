@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+// HistorialMedico.kt: Entidad Room que representa el historial médico de una mascota.
+
 @Entity(
     tableName = "historial_medico",
     foreignKeys = [

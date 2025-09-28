@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// MascotaViewModel.kt: ViewModel para la gestión de mascotas en la app.
+
 class MascotaViewModel(private val repository: MascotaRepository) : ViewModel() {
 
     private val _mascotas = MutableStateFlow<List<Mascota>>(emptyList())

@@ -20,6 +20,11 @@ import com.example.veterinariaapp.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+/*
+HistorialMedicoScreen.kt: Pantalla para mostrar y gestionar el historial médico de una mascota.
+Permite ver, buscar y filtrar registros de historial médico, así como agregar, editar o eliminar registros.
+*/
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistorialMedicoScreen(

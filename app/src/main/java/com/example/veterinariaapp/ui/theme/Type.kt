@@ -6,6 +6,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+// Type.kt: Define las tipografías y estilos de texto de la app.
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(

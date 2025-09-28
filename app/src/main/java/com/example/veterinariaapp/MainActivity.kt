@@ -1,3 +1,5 @@
+// MainActivity.kt: Actividad principal de la aplicación, gestiona la navegación y la interfaz principal.
+
 package com.example.veterinariaapp
 
 import android.os.Bundle

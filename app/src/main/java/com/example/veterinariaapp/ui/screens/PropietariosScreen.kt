@@ -17,6 +17,7 @@ import com.example.veterinariaapp.data.entities.Propietario
 import com.example.veterinariaapp.viewmodel.PropietarioViewModel
 import com.example.veterinariaapp.viewmodel.PropietarioViewModelFactory
 
+// PropietariosScreen.kt: Pantalla para mostrar y gestionar los propietarios de mascotas.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PropietariosScreen(application: VeterinariaApplication) {

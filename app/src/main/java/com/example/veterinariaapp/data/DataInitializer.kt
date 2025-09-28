@@ -12,6 +12,10 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/*
+DataInitializer.kt: Inicializa datos de ejemplo en la base de datos al iniciar la app.
+*/
+
 class DataInitializer(
     private val propietarioRepository: PropietarioRepository,
     private val servicioRepository: ServicioRepository,

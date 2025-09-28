@@ -4,6 +4,8 @@ import com.example.veterinariaapp.data.dao.CategoriaDao
 import com.example.veterinariaapp.data.entities.Categoria
 import kotlinx.coroutines.flow.Flow
 
+// CategoriaRepository.kt: Lógica de acceso a datos para la entidad Categoria.
+
 class CategoriaRepository(private val categoriaDao: CategoriaDao) {
 
     fun getAllCategorias(): Flow<List<Categoria>> = categoriaDao.getAllCategorias()

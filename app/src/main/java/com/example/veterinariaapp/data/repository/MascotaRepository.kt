@@ -4,6 +4,8 @@ import com.example.veterinariaapp.data.dao.MascotaDao
 import com.example.veterinariaapp.data.entities.Mascota
 import kotlinx.coroutines.flow.Flow
 
+// MascotaRepository.kt: Lógica de acceso a datos para la entidad Mascota.
+
 class MascotaRepository(private val mascotaDao: MascotaDao) {
 
     fun getAllMascotas(): Flow<List<Mascota>> = mascotaDao.getAllMascotas()

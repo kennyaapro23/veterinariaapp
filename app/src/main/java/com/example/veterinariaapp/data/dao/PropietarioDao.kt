@@ -4,6 +4,8 @@ import androidx.room.*
 import com.example.veterinariaapp.data.entities.Propietario
 import kotlinx.coroutines.flow.Flow
 
+// PropietarioDao.kt: DAO para operaciones CRUD sobre la entidad Propietario.
+
 @Dao
 interface PropietarioDao {
     @Query("SELECT * FROM propietarios")

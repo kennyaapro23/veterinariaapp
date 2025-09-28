@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// CategoriaViewModel.kt: ViewModel para la gestión de categorías en la app.
+
 class CategoriaViewModel(private val repository: CategoriaRepository) : ViewModel() {
 
     private val _categorias = MutableStateFlow<List<Categoria>>(emptyList())

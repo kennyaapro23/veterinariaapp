@@ -4,6 +4,8 @@ import com.example.veterinariaapp.data.dao.PropietarioDao
 import com.example.veterinariaapp.data.entities.Propietario
 import kotlinx.coroutines.flow.Flow
 
+// PropietarioRepository.kt: Lógica de acceso a datos para la entidad Propietario.
+
 class PropietarioRepository(private val propietarioDao: PropietarioDao) {
 
     fun getAllPropietarios(): Flow<List<Propietario>> = propietarioDao.getAllPropietarios()

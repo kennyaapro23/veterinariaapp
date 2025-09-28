@@ -4,6 +4,7 @@ import androidx.room.*
 import com.example.veterinariaapp.data.entities.Mascota
 import kotlinx.coroutines.flow.Flow
 
+// MascotaDao.kt: DAO para operaciones CRUD sobre la entidad Mascota.
 @Dao
 interface MascotaDao {
     @Query("SELECT * FROM mascotas")

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// PropietarioViewModel.kt: ViewModel para la gestión de propietarios de mascotas.
+
 class PropietarioViewModel(private val repository: PropietarioRepository) : ViewModel() {
 
     private val _propietarios = MutableStateFlow<List<Propietario>>(emptyList())

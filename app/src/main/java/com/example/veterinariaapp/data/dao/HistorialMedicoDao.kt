@@ -4,6 +4,8 @@ import androidx.room.*
 import com.example.veterinariaapp.data.entities.HistorialMedico
 import kotlinx.coroutines.flow.Flow
 
+// HistorialMedicoDao.kt: DAO para operaciones CRUD sobre la entidad HistorialMedico.
+
 @Dao
 interface HistorialMedicoDao {
     @Query("SELECT * FROM historial_medico ORDER BY fecha DESC")

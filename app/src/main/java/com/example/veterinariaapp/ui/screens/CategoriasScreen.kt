@@ -21,6 +21,8 @@ import com.example.veterinariaapp.data.entities.Categoria
 import com.example.veterinariaapp.viewmodel.CategoriaViewModel
 import com.example.veterinariaapp.viewmodel.CategoriaViewModelFactory
 
+// CategoriasScreen.kt: Pantalla para mostrar y gestionar las categorías de mascotas o servicios.
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoriasScreen(application: VeterinariaApplication) {

@@ -17,6 +17,7 @@ import com.example.veterinariaapp.data.entities.Servicio
 import com.example.veterinariaapp.viewmodel.ServicioViewModel
 import com.example.veterinariaapp.viewmodel.ServicioViewModelFactory
 
+// ServiciosScreen.kt: Pantalla para mostrar y gestionar los servicios veterinarios ofrecidos.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiciosScreen(application: VeterinariaApplication) {
