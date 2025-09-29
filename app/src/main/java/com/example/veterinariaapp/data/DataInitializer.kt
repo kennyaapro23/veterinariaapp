@@ -21,20 +21,38 @@ class DataInitializer(
     private val servicioRepository: ServicioRepository,
     private val mascotaRepository: MascotaRepository,
     private val historialMedicoRepository: HistorialMedicoRepository,
-    private val categoriaRepository: CategoriaRepository
+    private val categoriaRepository: CategoriaRepository,
+    private val citaRepository: CitaRepository
 ) {
 
     fun initializeData() {
         CoroutineScope(Dispatchers.IO).launch {
-            initializeCategorias()
-            initializePropietarios()
-            initializeServicios()
-            initializeMascotas()
-            initializeHistorialMedico()
+            // Limpiar toda la base de datos antes de insertar datos nuevos
+            clearDatabase()
+
+            // Insertar en orden correcto y capturar IDs reales
+            val categoriaIds = initializeCategorias()
+            val propietarioIds = initializePropietarios()
+            val servicioIds = initializeServicios()
+            val mascotaIds = initializeMascotas(propietarioIds, categoriaIds)
+            initializeHistorialMedico(mascotaIds, servicioIds)
         }
     }
 
-    private suspend fun initializePropietarios() {
+    /**
+     * Limpia toda la base de datos eliminando todos los registros de todas las tablas
+     */
+    private suspend fun clearDatabase() {
+        // Limpiar en orden inverso debido a las relaciones de claves foráneas
+        historialMedicoRepository.deleteAllHistorial()
+        citaRepository.deleteAllCitas()
+        mascotaRepository.deleteAllMascotas()
+        propietarioRepository.deleteAllPropietarios()
+        servicioRepository.deleteAllServicios()
+        categoriaRepository.deleteAllCategorias()
+    }
+
+    private suspend fun initializePropietarios(): List<Long> {
         val propietariosEjemplo = listOf(
             Propietario(
                 nombre = "Dr. Juan Pérez",
@@ -56,12 +74,15 @@ class DataInitializer(
             )
         )
 
+        val propietarioIds = mutableListOf<Long>()
         propietariosEjemplo.forEach { propietario ->
-            propietarioRepository.insertPropietario(propietario)
+            val id = propietarioRepository.insertPropietario(propietario)
+            propietarioIds.add(id)
         }
+        return propietarioIds
     }
 
-    private suspend fun initializeServicios() {
+    private suspend fun initializeServicios(): List<Long> {
         val serviciosVeterinarios = listOf(
             Servicio(
                 nombre = "Consulta General",
@@ -115,12 +136,20 @@ class DataInitializer(
             )
         )
 
+        val servicioIds = mutableListOf<Long>()
         serviciosVeterinarios.forEach { servicio ->
-            servicioRepository.insertServicio(servicio)
+            val id = servicioRepository.insertServicio(servicio)
+            servicioIds.add(id)
         }
+        return servicioIds
     }
 
-    private suspend fun initializeMascotas() {
+    private suspend fun initializeMascotas(propietarioIds: List<Long>, categoriaIds: List<Long>): List<Long> {
+        // Verificar que tenemos suficientes propietarios y categorías
+        if (propietarioIds.isEmpty() || categoriaIds.isEmpty()) {
+            return emptyList()
+        }
+
         val mascotasEjemplo = listOf(
             Mascota(
                 nombre = "Max",
@@ -128,8 +157,8 @@ class DataInitializer(
                 raza = "Golden Retriever",
                 edad = 3,
                 sexo = "Macho",
-                propietarioId = 1L,
-                categoriaId = 2L // Perros Grandes
+                propietarioId = propietarioIds[0], // Usar ID real del primer propietario
+                categoriaId = categoriaIds.getOrNull(1) ?: categoriaIds[0] // Perros Grandes o primera categoría
             ),
             Mascota(
                 nombre = "Luna",
@@ -137,8 +166,8 @@ class DataInitializer(
                 raza = "Persa",
                 edad = 2,
                 sexo = "Hembra",
-                propietarioId = 1L,
-                categoriaId = 3L // Gatos Domésticos
+                propietarioId = propietarioIds[0],
+                categoriaId = categoriaIds.getOrNull(2) ?: categoriaIds[0] // Gatos Domésticos o primera categoría
             ),
             Mascota(
                 nombre = "Rocky",
@@ -146,8 +175,8 @@ class DataInitializer(
                 raza = "Bulldog",
                 edad = 5,
                 sexo = "Macho",
-                propietarioId = 2L,
-                categoriaId = 1L // Perros Pequeños
+                propietarioId = propietarioIds.getOrNull(1) ?: propietarioIds[0],
+                categoriaId = categoriaIds.getOrNull(0) ?: categoriaIds[0] // Perros Pequeños o primera categoría
             ),
             Mascota(
                 nombre = "Bella",
@@ -155,8 +184,8 @@ class DataInitializer(
                 raza = "Siamés",
                 edad = 4,
                 sexo = "Hembra",
-                propietarioId = 2L,
-                categoriaId = 3L // Gatos Domésticos
+                propietarioId = propietarioIds.getOrNull(1) ?: propietarioIds[0],
+                categoriaId = categoriaIds.getOrNull(2) ?: categoriaIds[0] // Gatos Domésticos o primera categoría
             ),
             Mascota(
                 nombre = "Charlie",
@@ -164,46 +193,54 @@ class DataInitializer(
                 raza = "Labrador",
                 edad = 1,
                 sexo = "Macho",
-                propietarioId = 3L,
-                categoriaId = 4L // Cachorros
+                propietarioId = propietarioIds.getOrNull(2) ?: propietarioIds[0],
+                categoriaId = categoriaIds.getOrNull(3) ?: categoriaIds[0] // Cachorros o primera categoría
             )
         )
 
+        val mascotaIds = mutableListOf<Long>()
         mascotasEjemplo.forEach { mascota ->
-            mascotaRepository.insertMascota(mascota)
+            val id = mascotaRepository.insertMascota(mascota)
+            mascotaIds.add(id)
         }
+        return mascotaIds
     }
 
-    private suspend fun initializeHistorialMedico() {
+    private suspend fun initializeHistorialMedico(mascotaIds: List<Long>, servicioIds: List<Long>) {
+        // Solo crear historial si tenemos mascotas y servicios
+        if (mascotaIds.isEmpty() || servicioIds.isEmpty()) {
+            return
+        }
+
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val historialEjemplo = listOf(
             HistorialMedico(
-                mascotaId = 1L,
-                servicioId = 1L,
+                mascotaId = mascotaIds[0],
+                servicioId = servicioIds[0], // Consulta General
                 fecha = dateFormat.format(Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)),
                 observaciones = "Consulta de rutina. Mascota en excelente estado. Se recomienda continuar con alimentación balanceada."
             ),
             HistorialMedico(
-                mascotaId = 1L,
-                servicioId = 2L,
+                mascotaId = mascotaIds[0],
+                servicioId = servicioIds.getOrNull(1) ?: servicioIds[0], // Vacunación
                 fecha = dateFormat.format(Date(System.currentTimeMillis() - 30 * 24 * 60 * 60 * 1000)),
                 observaciones = "Vacunación anual completada. Próxima dosis en 12 meses."
             ),
             HistorialMedico(
-                mascotaId = 2L,
-                servicioId = 1L,
+                mascotaId = mascotaIds.getOrNull(1) ?: mascotaIds[0],
+                servicioId = servicioIds[0], // Consulta General
                 fecha = dateFormat.format(Date(System.currentTimeMillis() - 14 * 24 * 60 * 60 * 1000)),
                 observaciones = "Consulta por pérdida de apetito. Se prescribe tratamiento y dieta especial."
             ),
             HistorialMedico(
-                mascotaId = 3L,
-                servicioId = 3L,
+                mascotaId = mascotaIds.getOrNull(2) ?: mascotaIds[0],
+                servicioId = servicioIds.getOrNull(2) ?: servicioIds[0], // Desparasitación
                 fecha = dateFormat.format(Date(System.currentTimeMillis() - 21 * 24 * 60 * 60 * 1000)),
                 observaciones = "Desparasitación preventiva realizada. Control en 3 meses."
             ),
             HistorialMedico(
-                mascotaId = 4L,
-                servicioId = 5L,
+                mascotaId = mascotaIds.getOrNull(3) ?: mascotaIds[0],
+                servicioId = servicioIds.getOrNull(4) ?: servicioIds[0], // Limpieza Dental
                 fecha = dateFormat.format(Date(System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000)),
                 observaciones = "Limpieza dental realizada. Se observa mejoría significativa en salud bucal."
             )
@@ -214,7 +251,7 @@ class DataInitializer(
         }
     }
 
-    private suspend fun initializeCategorias() {
+    private suspend fun initializeCategorias(): List<Long> {
         val categoriasEjemplo = listOf(
             Categoria(
                 nombre = "Perros Pequeños",
@@ -248,8 +285,11 @@ class DataInitializer(
             )
         )
 
+        val categoriaIds = mutableListOf<Long>()
         categoriasEjemplo.forEach { categoria ->
-            categoriaRepository.insertCategoria(categoria)
+            val id = categoriaRepository.insertCategoria(categoria)
+            categoriaIds.add(id)
         }
+        return categoriaIds
     }
 }

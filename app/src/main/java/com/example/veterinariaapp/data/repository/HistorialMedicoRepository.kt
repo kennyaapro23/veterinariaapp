@@ -24,4 +24,6 @@ class HistorialMedicoRepository(private val historialMedicoDao: HistorialMedicoD
     suspend fun updateHistorial(historial: HistorialMedico) = historialMedicoDao.updateHistorial(historial)
 
     suspend fun deleteHistorial(historial: HistorialMedico) = historialMedicoDao.deleteHistorial(historial)
+
+    suspend fun deleteAllHistorial() = historialMedicoDao.deleteAllHistorial()
 }

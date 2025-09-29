@@ -31,4 +31,7 @@ interface CitaDao {
 
     @Delete
     suspend fun deleteCita(cita: Cita)
+
+    @Query("DELETE FROM citas")
+    suspend fun deleteAllCitas()
 }

@@ -26,4 +26,6 @@ class CitaRepository(private val citaDao: CitaDao) {
     suspend fun updateCita(cita: Cita) = citaDao.updateCita(cita)
 
     suspend fun deleteCita(cita: Cita) = citaDao.deleteCita(cita)
+
+    suspend fun deleteAllCitas() = citaDao.deleteAllCitas()
 }

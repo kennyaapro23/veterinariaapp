@@ -17,4 +17,6 @@ class PropietarioRepository(private val propietarioDao: PropietarioDao) {
     suspend fun updatePropietario(propietario: Propietario) = propietarioDao.updatePropietario(propietario)
 
     suspend fun deletePropietario(propietario: Propietario) = propietarioDao.deletePropietario(propietario)
+
+    suspend fun deleteAllPropietarios() = propietarioDao.deleteAllPropietarios()
 }

@@ -22,4 +22,7 @@ interface PropietarioDao {
 
     @Delete
     suspend fun deletePropietario(propietario: Propietario)
+
+    @Query("DELETE FROM propietarios")
+    suspend fun deleteAllPropietarios()
 }

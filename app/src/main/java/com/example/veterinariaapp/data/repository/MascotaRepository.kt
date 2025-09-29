@@ -26,4 +26,6 @@ class MascotaRepository(private val mascotaDao: MascotaDao) {
     suspend fun updateMascota(mascota: Mascota) = mascotaDao.updateMascota(mascota)
 
     suspend fun deleteMascota(mascota: Mascota) = mascotaDao.deleteMascota(mascota)
+
+    suspend fun deleteAllMascotas() = mascotaDao.deleteAllMascotas()
 }

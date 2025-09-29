@@ -33,4 +33,7 @@ interface MascotaDao {
 
     @Delete
     suspend fun deleteMascota(mascota: Mascota)
+
+    @Query("DELETE FROM mascotas")
+    suspend fun deleteAllMascotas()
 }

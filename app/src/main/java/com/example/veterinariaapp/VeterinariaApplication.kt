@@ -29,7 +29,8 @@ class VeterinariaApplication : Application() {
             servicioRepository,
             mascotaRepository,
             historialMedicoRepository,
-            categoriaRepository
+            categoriaRepository,
+            citaRepository
         )
         dataInitializer.initializeData()
     }

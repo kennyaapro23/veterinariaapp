@@ -30,4 +30,7 @@ interface HistorialMedicoDao {
 
     @Delete
     suspend fun deleteHistorial(historial: HistorialMedico)
+
+    @Query("DELETE FROM historial_medico")
+    suspend fun deleteAllHistorial()
 }

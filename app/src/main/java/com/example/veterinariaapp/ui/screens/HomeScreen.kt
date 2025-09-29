@@ -38,8 +38,8 @@ fun HomeScreen(navController: NavController) {
     val mascotas by mascotaViewModel.mascotas.collectAsState()
     val propietarios by propietarioViewModel.propietarios.collectAsState()
 
-    // Filtrar solo perros
-    val perros = mascotas.filter { it.especie.equals("Perro", ignoreCase = true) }
+    // Mostrar todas las mascotas (sin filtrar)
+    // val perros = mascotas.filter { it.especie.equals("Perro", ignoreCase = true) }
 
     Scaffold(
         topBar = {
@@ -119,7 +119,7 @@ fun HomeScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // Lista de perros registrados
+            // Lista de mascotas registradas
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -128,21 +128,21 @@ fun HomeScreen(navController: NavController) {
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "🐕 Perros Registrados",
+                            text = "🐾 Mascotas Registradas",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        if (perros.isEmpty()) {
+                        if (mascotas.isEmpty()) {
                             Text(
-                                text = "No hay perros registrados aún.",
+                                text = "No hay mascotas registradas aún.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
                             Text(
-                                text = "Total: ${perros.size} perros",
+                                text = "Total: ${mascotas.size} mascotas",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Medium
@@ -154,9 +154,9 @@ fun HomeScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Lista de perros
-            items(perros) { perro ->
-                val propietario = propietarios.find { it.propietarioId == perro.propietarioId }
+            // Lista de todas las mascotas
+            items(mascotas) { mascota ->
+                val propietario = propietarios.find { it.propietarioId == mascota.propietarioId }
 
                 Card(
                     modifier = Modifier
@@ -172,8 +172,12 @@ fun HomeScreen(navController: NavController) {
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Icono según la especie
                         Icon(
-                            Icons.Default.Face,
+                            if (mascota.especie.equals("Perro", ignoreCase = true))
+                                Icons.Default.Face
+                            else
+                                Icons.Default.Favorite, // Para gatos u otras mascotas
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(40.dp)
@@ -183,12 +187,12 @@ fun HomeScreen(navController: NavController) {
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = perro.nombre,
+                                text = mascota.nombre,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${perro.raza} • ${perro.edad} años",
+                                text = "${mascota.especie} - ${mascota.raza} • ${mascota.edad} años",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Text(
@@ -200,7 +204,7 @@ fun HomeScreen(navController: NavController) {
 
                         IconButton(
                             onClick = {
-                                navController.navigate(NavigationRoutes.HISTORIAL + "/${perro.mascotaId}")
+                                navController.navigate(NavigationRoutes.HISTORIAL + "/${mascota.mascotaId}")
                             }
                         ) {
                             Icon(
@@ -229,7 +233,10 @@ fun HomeScreen(navController: NavController) {
                             fontWeight = FontWeight.Bold
                         )
                         Text("✅ Total mascotas: ${mascotas.size}")
-                        Text("✅ Perros registrados: ${perros.size}")
+                        val perros = mascotas.count { it.especie.equals("Perro", ignoreCase = true) }
+                        val gatos = mascotas.count { it.especie.equals("Gato", ignoreCase = true) }
+                        Text("🐕 Perros registrados: $perros")
+                        Text("🐱 Gatos registrados: $gatos")
                         Text("✅ Propietarios activos: ${propietarios.size}")
                         Text("✅ Base de datos Room activa")
                         Text("✅ Navegación centralizada")
