@@ -18,14 +18,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.veterinariaapp.VeterinariaApplication
 import com.example.veterinariaapp.data.entities.Categoria
+import com.example.veterinariaapp.ui.components.VeterinariaBottomBar
 import com.example.veterinariaapp.viewmodel.CategoriaViewModel
 import com.example.veterinariaapp.viewmodel.CategoriaViewModelFactory
+import androidx.navigation.NavController
 
 // CategoriasScreen.kt: Pantalla para mostrar y gestionar las categorías de mascotas o servicios.
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoriasScreen(application: VeterinariaApplication) {
+fun CategoriasScreen(
+    navController: NavController,
+    application: VeterinariaApplication
+) {
     val categoriaViewModel: CategoriaViewModel = viewModel(
         factory = CategoriaViewModelFactory(application.categoriaRepository)
     )
@@ -46,117 +51,127 @@ fun CategoriasScreen(application: VeterinariaApplication) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header con título y acciones
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        bottomBar = {
+            VeterinariaBottomBar(
+                currentScreen = "categorias",
+                navController = navController
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column {
-                Text(
-                    text = "🏷️ Gestión de Categorías",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Organiza las mascotas por categorías",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
+            // Header con título y acciones
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Botón de búsqueda
-                IconButton(onClick = { showSearchBar = !showSearchBar }) {
-                    Icon(Icons.Default.Search, contentDescription = "Buscar")
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Botón agregar más prominente
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    editingCategoria = null
-                    showDialog = true
-                },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Nueva Categoría") },
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        // Barra de búsqueda expandible
-        if (showSearchBar) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Buscar categorías...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpiar")
-                        }
-                    }
-                },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Resumen
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "📊 Resumen de Categorías",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text("Total de categorías: ${categorias.size}")
-                if (searchQuery.isNotBlank()) {
+                Column {
                     Text(
-                        text = "Mostrando: ${categoriasFiltradas.size} categorías",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
+                        text = "🏷️ Gestión de Categorías",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Organiza las mascotas por categorías",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Botón de búsqueda
+                    IconButton(onClick = { showSearchBar = !showSearchBar }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de categorías
-        LazyColumn {
-            items(categoriasFiltradas) { categoria ->
-                CategoriaCard(
-                    categoria = categoria,
-                    onEdit = {
-                        editingCategoria = it
+            // Botón agregar más prominente
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        editingCategoria = null
                         showDialog = true
                     },
-                    onDelete = { categoriaViewModel.deleteCategoria(it) }
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Nueva Categoría") },
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
+            }
+
+            // Barra de búsqueda expandible
+            if (showSearchBar) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Buscar categorías...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Limpiar")
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Resumen
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "📊 Resumen de Categorías",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Total de categorías: ${categorias.size}")
+                    if (searchQuery.isNotBlank()) {
+                        Text(
+                            text = "Mostrando: ${categoriasFiltradas.size} categorías",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Lista de categorías
+            LazyColumn {
+                items(categoriasFiltradas) { categoria ->
+                    CategoriaCard(
+                        categoria = categoria,
+                        onEdit = {
+                            editingCategoria = it
+                            showDialog = true
+                        },
+                        onDelete = { categoriaViewModel.deleteCategoria(it) }
+                    )
+                }
             }
         }
     }

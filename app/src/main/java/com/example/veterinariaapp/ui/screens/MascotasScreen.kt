@@ -22,10 +22,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.veterinariaapp.VeterinariaApplication
 import com.example.veterinariaapp.data.entities.Mascota
 import com.example.veterinariaapp.viewmodel.*
+import androidx.navigation.NavController
+import com.example.veterinariaapp.ui.components.VeterinariaBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MascotasScreen(
+    navController: NavController,
     application: VeterinariaApplication,
     onNavigateToHistorial: (Long) -> Unit
 ) {
@@ -74,196 +77,206 @@ fun MascotasScreen(
         matchesSearch && matchesPropietario && matchesCategoria
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header con título y acciones
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        bottomBar = {
+            VeterinariaBottomBar(
+                currentScreen = "mascotas",
+                navController = navController
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column {
-                Text(
-                    text = "🐾 Registro de Mascotas",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Toca ➕ para agregar una nueva mascota",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
+            // Header con título y acciones
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Botón de búsqueda
-                IconButton(onClick = { showSearchBar = !showSearchBar }) {
-                    Icon(Icons.Default.Search, contentDescription = "Buscar")
-                }
-
-                // Botón de filtro
-                IconButton(onClick = { showFilterMenu = true }) {
-                    Icon(Icons.Default.Settings, contentDescription = "Filtrar")
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Botón agregar más prominente
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    editingMascota = null
-                    showDialog = true
-                },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Nueva Mascota") },
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        // Barra de búsqueda expandible
-        if (showSearchBar) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Buscar por nombre de mascota o propietario...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpiar")
-                        }
-                    }
-                },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-        }
-
-        // Filtro actual
-        if (filterByPropietario != null || filterByCategoria != null) {
-            val propietarioFiltro = propietarios.find { it.propietarioId == filterByPropietario }
-            val categoriaFiltro = categorias.find { it.categoriaId == filterByCategoria }
-            Spacer(modifier = Modifier.height(8.dp))
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Column {
                     Text(
-                        text = buildString {
-                            if (propietarioFiltro != null) {
-                                append("👤 Filtrando por: ${propietarioFiltro.nombre}")
-                            }
-                            if (categoriaFiltro != null) {
-                                if (propietarioFiltro != null) append(" | ")
-                                append("📂 Filtrando por categoría: ${categoriaFiltro.nombre}")
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "🐾 Registro de Mascotas",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
                     )
-                    IconButton(
-                        onClick = {
-                            filterByPropietario = null
-                            filterByCategoria = null
-                        },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = "Quitar filtro")
+                    Text(
+                        text = "Toca ➕ para agregar una nueva mascota",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Botón de búsqueda
+                    IconButton(onClick = { showSearchBar = !showSearchBar }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+
+                    // Botón de filtro
+                    IconButton(onClick = { showFilterMenu = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Filtrar")
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Resumen con resultados de búsqueda
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            // Botón agregar más prominente
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Text(
-                    text = "📊 Resumen",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text("Total de mascotas registradas: ${mascotas.size}")
-                Text("Propietarios activos: ${propietarios.size}")
-                if (searchQuery.isNotBlank() || filterByPropietario != null || filterByCategoria != null) {
-                    Text(
-                        text = "Mostrando: ${mascotasFiltradas.size} mascotas",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Lista de mascotas filtradas
-        LazyColumn {
-            items(mascotasFiltradas) { mascota ->
-                MascotaCard(
-                    mascota = mascota,
-                    propietarios = propietarios,
-                    onEdit = {
-                        editingMascota = it
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        editingMascota = null
                         showDialog = true
                     },
-                    onDelete = { mascotaViewModel.deleteMascota(it) },
-                    onViewHistorial = { onNavigateToHistorial(it.mascotaId) }
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Nueva Mascota") },
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             }
 
-            // Mensaje si no hay resultados
-            if (mascotasFiltradas.isEmpty() && mascotas.isNotEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            // Barra de búsqueda expandible
+            if (showSearchBar) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Buscar por nombre de mascota o propietario...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Limpiar")
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            // Filtro actual
+            if (filterByPropietario != null || filterByCategoria != null) {
+                val propietarioFiltro = propietarios.find { it.propietarioId == filterByPropietario }
+                val categoriaFiltro = categorias.find { it.categoriaId == filterByCategoria }
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Text(
+                            text = buildString {
+                                if (propietarioFiltro != null) {
+                                    append("👤 Filtrando por: ${propietarioFiltro.nombre}")
+                                }
+                                if (categoriaFiltro != null) {
+                                    if (propietarioFiltro != null) append(" | ")
+                                    append("📂 Filtrando por categoría: ${categoriaFiltro.nombre}")
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        IconButton(
+                            onClick = {
+                                filterByPropietario = null
+                                filterByCategoria = null
+                            },
+                            modifier = Modifier.size(24.dp)
                         ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "No se encontraron mascotas",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "Intenta con otros términos de búsqueda",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Icon(Icons.Default.Close, contentDescription = "Quitar filtro")
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Resumen con resultados de búsqueda
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "📊 Resumen",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Total de mascotas registradas: ${mascotas.size}")
+                    Text("Propietarios activos: ${propietarios.size}")
+                    if (searchQuery.isNotBlank() || filterByPropietario != null || filterByCategoria != null) {
+                        Text(
+                            text = "Mostrando: ${mascotasFiltradas.size} mascotas",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Lista de mascotas filtradas
+            LazyColumn {
+                items(mascotasFiltradas) { mascota ->
+                    MascotaCard(
+                        mascota = mascota,
+                        propietarios = propietarios,
+                        onEdit = {
+                            editingMascota = it
+                            showDialog = true
+                        },
+                        onDelete = { mascotaViewModel.deleteMascota(it) },
+                        onViewHistorial = { onNavigateToHistorial(it.mascotaId) }
+                    )
+                }
+
+                // Mensaje si no hay resultados
+                if (mascotasFiltradas.isEmpty() && mascotas.isNotEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No se encontraron mascotas",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = "Intenta con otros términos de búsqueda",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
@@ -361,7 +374,6 @@ fun MascotasScreen(
                             }
                         }
                     }
-
 
                     // Spacer entre secciones
                     item {

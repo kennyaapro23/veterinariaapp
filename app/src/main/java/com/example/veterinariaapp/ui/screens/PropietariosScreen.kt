@@ -14,13 +14,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.veterinariaapp.VeterinariaApplication
 import com.example.veterinariaapp.data.entities.Propietario
+import com.example.veterinariaapp.ui.components.VeterinariaBottomBar
 import com.example.veterinariaapp.viewmodel.PropietarioViewModel
 import com.example.veterinariaapp.viewmodel.PropietarioViewModelFactory
+import androidx.navigation.NavController
 
 // PropietariosScreen.kt: Pantalla para mostrar y gestionar los propietarios de mascotas.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PropietariosScreen(application: VeterinariaApplication) {
+fun PropietariosScreen(
+    navController: NavController,
+    application: VeterinariaApplication
+) {
     val propietarioViewModel: PropietarioViewModel = viewModel(
         factory = PropietarioViewModelFactory(application.propietarioRepository)
     )
@@ -42,115 +47,125 @@ fun PropietariosScreen(application: VeterinariaApplication) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "👥 Propietarios",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+    Scaffold(
+        bottomBar = {
+            VeterinariaBottomBar(
+                currentScreen = "propietarios",
+                navController = navController
             )
-
-            FloatingActionButton(
-                onClick = {
-                    editingPropietario = null
-                    showDialog = true
-                }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar Propietario")
-            }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Barra de búsqueda
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Buscar propietario...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = {
-                if (searchQuery.isNotBlank()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Clear, contentDescription = "Limpiar")
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth()
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "📊 Clientes Registrados",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "👥 Propietarios",
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Text("Total de propietarios: ${propietarios.size}")
-                if (searchQuery.isNotBlank()) {
-                    Text(
-                        text = "Mostrando: ${propietariosFiltrados.size} propietarios",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
+
+                FloatingActionButton(
+                    onClick = {
+                        editingPropietario = null
+                        showDialog = true
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Agregar Propietario")
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(propietariosFiltrados) { propietario ->
-                PropietarioCard(
-                    propietario = propietario,
-                    onEdit = {
-                        editingPropietario = it
-                        showDialog = true
-                    },
-                    onDelete = { propietarioViewModel.deletePropietario(it) }
-                )
+            // Barra de búsqueda
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Buscar propietario...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotBlank()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Limpiar")
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "📊 Clientes Registrados",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Total de propietarios: ${propietarios.size}")
+                    if (searchQuery.isNotBlank()) {
+                        Text(
+                            text = "Mostrando: ${propietariosFiltrados.size} propietarios",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
-            if (propietariosFiltrados.isEmpty() && propietarios.isNotEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn {
+                items(propietariosFiltrados) { propietario ->
+                    PropietarioCard(
+                        propietario = propietario,
+                        onEdit = {
+                            editingPropietario = it
+                            showDialog = true
+                        },
+                        onDelete = { propietarioViewModel.deletePropietario(it) }
+                    )
+                }
+                if (propietariosFiltrados.isEmpty() && propietarios.isNotEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "No se encontraron propietarios",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "Intenta con otros términos de búsqueda",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No se encontraron propietarios",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = "Intenta con otros términos de búsqueda",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

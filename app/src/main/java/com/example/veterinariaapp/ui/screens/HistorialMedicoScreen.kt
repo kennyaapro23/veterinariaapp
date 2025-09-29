@@ -19,6 +19,8 @@ import com.example.veterinariaapp.data.entities.Servicio
 import com.example.veterinariaapp.viewmodel.*
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.navigation.NavController
+import com.example.veterinariaapp.ui.components.VeterinariaBottomBar
 
 /*
 HistorialMedicoScreen.kt: Pantalla para mostrar y gestionar el historial médico de una mascota.
@@ -28,6 +30,7 @@ Permite ver, buscar y filtrar registros de historial médico, así como agregar,
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistorialMedicoScreen(
+    navController: NavController,
     application: VeterinariaApplication,
     mascotaId: Long? = null
 ) {
@@ -73,142 +76,203 @@ fun HistorialMedicoScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "📋 Historial Médico",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                if (mascotaId != null) {
-                    val mascota = mascotas.find { it.mascotaId == mascotaId }
-                    Text(
-                        text = "Paciente: ${mascota?.nombre ?: "Cargando..."}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Row {
-                // Botón de búsqueda
-                IconButton(onClick = { showSearchBar = !showSearchBar }) {
-                    Icon(Icons.Default.Search, contentDescription = "Buscar")
-                }
-
-                // Botón de filtro (solo si no hay mascota específica)
-                if (mascotaId == null) {
-                    IconButton(onClick = { showFilterMenu = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Filtrar")
-                    }
-                }
-
-                // Botón agregar
-                FloatingActionButton(
-                    onClick = {
-                        editingHistorial = null
-                        showDialog = true
-                    },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Nuevo Registro")
-                }
-            }
-        }
-
-        // Barra de búsqueda expandible
-        if (showSearchBar) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Buscar en observaciones, fecha, mascota o servicio...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpiar")
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+    Scaffold(
+        bottomBar = {
+            VeterinariaBottomBar(
+                currentScreen = "historial",
+                navController = navController
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Filtros y resumen
-        Card(
-            modifier = Modifier.fillMaxWidth()
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "📊 Resumen Clínico",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text("Total de consultas: ${historial.size}")
-                Text("Última consulta: ${historial.maxByOrNull { it.fecha }?.fecha ?: "Sin consultas"}")
-
-                if (searchQuery.isNotBlank()) {
+                Column {
                     Text(
-                        text = "Mostrando: ${historialFiltrado.size} registros",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
+                        text = "📋 Historial Médico",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (mascotaId != null) {
+                        val mascota = mascotas.find { it.mascotaId == mascotaId }
+                        Text(
+                            text = "Paciente: ${mascota?.nombre ?: "Cargando..."}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Row {
+                    // Botón de búsqueda
+                    IconButton(onClick = { showSearchBar = !showSearchBar }) {
+                        Icon(Icons.Default.Search, contentDescription = "Buscar")
+                    }
+
+                    // Botón de filtro (solo si no hay mascota específica)
+                    if (mascotaId == null) {
+                        IconButton(onClick = { showFilterMenu = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Filtrar")
+                        }
+                    }
+
+                    // Botón agregar
+                    FloatingActionButton(
+                        onClick = {
+                            editingHistorial = null
+                            showDialog = true
+                        },
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Nuevo Registro")
+                    }
+                }
+            }
+
+            // Barra de búsqueda expandible
+            if (showSearchBar) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Buscar en observaciones, fecha, mascota o servicio...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Limpiar")
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Filtros y resumen
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "📊 Resumen Clínico",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Total de consultas: ${historial.size}")
+                    Text("Última consulta: ${historial.maxByOrNull { it.fecha }?.fecha ?: "Sin consultas"}")
+
+                    if (searchQuery.isNotBlank()) {
+                        Text(
+                            text = "Mostrando: ${historialFiltrado.size} registros",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    if (mascotaId == null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Selector de mascota para ver historial completo
+                        var expandedMascota by remember { mutableStateOf(false) }
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedMascota,
+                            onExpandedChange = { expandedMascota = !expandedMascota }
+                        ) {
+                            OutlinedTextField(
+                                value = if (selectedMascotaId == 0L) "Todas las mascotas" else mascotas.find { it.mascotaId == selectedMascotaId }?.nombre ?: "Todas las mascotas",
+                                onValueChange = { },
+                                readOnly = true,
+                                label = { Text("Filtrar por mascota") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMascota) },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expandedMascota,
+                                onDismissRequest = { expandedMascota = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Todas las mascotas") },
+                                    onClick = {
+                                        selectedMascotaId = 0L
+                                        expandedMascota = false
+                                    }
+                                )
+                                mascotas.forEach { mascota ->
+                                    DropdownMenuItem(
+                                        text = { Text("${mascota.nombre} (${mascota.especie})") },
+                                        onClick = {
+                                            selectedMascotaId = mascota.mascotaId
+                                            expandedMascota = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn {
+                items(historialFiltrado.sortedByDescending { it.fecha }) { registro ->
+                    HistorialCard(
+                        historial = registro,
+                        mascotas = mascotas,
+                        servicios = servicios,
+                        onEdit = {
+                            editingHistorial = it
+                            showDialog = true
+                        },
+                        onDelete = { historialViewModel.deleteHistorial(it) }
                     )
                 }
 
-                if (mascotaId == null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Selector de mascota para ver historial completo
-                    var expandedMascota by remember { mutableStateOf(false) }
-
-                    ExposedDropdownMenuBox(
-                        expanded = expandedMascota,
-                        onExpandedChange = { expandedMascota = !expandedMascota }
-                    ) {
-                        OutlinedTextField(
-                            value = if (selectedMascotaId == 0L) "Todas las mascotas" else mascotas.find { it.mascotaId == selectedMascotaId }?.nombre ?: "Todas las mascotas",
-                            onValueChange = { },
-                            readOnly = true,
-                            label = { Text("Filtrar por mascota") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMascota) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                        )
-
-                        ExposedDropdownMenu(
-                            expanded = expandedMascota,
-                            onDismissRequest = { expandedMascota = false }
+                // Mensaje si no hay resultados
+                if (historialFiltrado.isEmpty() && historial.isNotEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Todas las mascotas") },
-                                onClick = {
-                                    selectedMascotaId = 0L
-                                    expandedMascota = false
-                                }
-                            )
-                            mascotas.forEach { mascota ->
-                                DropdownMenuItem(
-                                    text = { Text("${mascota.nombre} (${mascota.especie})") },
-                                    onClick = {
-                                        selectedMascotaId = mascota.mascotaId
-                                        expandedMascota = false
-                                    }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No se encontraron registros",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = "Intenta con otros términos de búsqueda",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -217,74 +281,23 @@ fun HistorialMedicoScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn {
-            items(historialFiltrado.sortedByDescending { it.fecha }) { registro ->
-                HistorialCard(
-                    historial = registro,
-                    mascotas = mascotas,
-                    servicios = servicios,
-                    onEdit = {
-                        editingHistorial = it
-                        showDialog = true
-                    },
-                    onDelete = { historialViewModel.deleteHistorial(it) }
-                )
-            }
-
-            // Mensaje si no hay resultados
-            if (historialFiltrado.isEmpty() && historial.isNotEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "No se encontraron registros",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "Intenta con otros términos de búsqueda",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+        if (showDialog) {
+            HistorialDialog(
+                historial = editingHistorial,
+                mascotas = mascotas,
+                servicios = servicios,
+                mascotaIdPredeterminada = mascotaId,
+                onDismiss = { showDialog = false },
+                onSave = { historial ->
+                    if (editingHistorial != null) {
+                        historialViewModel.updateHistorial(historial)
+                    } else {
+                        historialViewModel.insertHistorial(historial)
                     }
+                    showDialog = false
                 }
-            }
+            )
         }
-    }
-
-    if (showDialog) {
-        HistorialDialog(
-            historial = editingHistorial,
-            mascotas = mascotas,
-            servicios = servicios,
-            mascotaIdPredeterminada = mascotaId,
-            onDismiss = { showDialog = false },
-            onSave = { historial ->
-                if (editingHistorial != null) {
-                    historialViewModel.updateHistorial(historial)
-                } else {
-                    historialViewModel.insertHistorial(historial)
-                }
-                showDialog = false
-            }
-        )
     }
 }
 

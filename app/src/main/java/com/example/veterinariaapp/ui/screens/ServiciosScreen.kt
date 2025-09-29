@@ -14,13 +14,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.veterinariaapp.VeterinariaApplication
 import com.example.veterinariaapp.data.entities.Servicio
+import com.example.veterinariaapp.ui.components.VeterinariaBottomBar
 import com.example.veterinariaapp.viewmodel.ServicioViewModel
 import com.example.veterinariaapp.viewmodel.ServicioViewModelFactory
+import androidx.navigation.NavController
 
 // ServiciosScreen.kt: Pantalla para mostrar y gestionar los servicios veterinarios ofrecidos.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiciosScreen(application: VeterinariaApplication) {
+fun ServiciosScreen(
+    navController: NavController,
+    application: VeterinariaApplication
+) {
     val servicioViewModel: ServicioViewModel = viewModel(
         factory = ServicioViewModelFactory(application.servicioRepository)
     )
@@ -40,79 +45,89 @@ fun ServiciosScreen(application: VeterinariaApplication) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "🏥 Servicios Veterinarios",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+    Scaffold(
+        bottomBar = {
+            VeterinariaBottomBar(
+                currentScreen = "servicios",
+                navController = navController
             )
-
-            FloatingActionButton(
-                onClick = {
-                    editingServicio = null
-                    showDialog = true
-                }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar Servicio")
-            }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Barra de búsqueda
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Buscar servicios...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Resumen
-        Card(
-            modifier = Modifier.fillMaxWidth()
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "📊 Catálogo de Servicios",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "🏥 Servicios Veterinarios",
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Text("Total de servicios: ${servicios.size}")
-                Text("Mostrando: ${serviciosFiltrados.size} servicios")
 
-                val costoPromedio = servicios.map { it.costo }.average()
-                if (!costoPromedio.isNaN()) {
-                    Text("Costo promedio: $${String.format("%.2f", costoPromedio)}")
+                FloatingActionButton(
+                    onClick = {
+                        editingServicio = null
+                        showDialog = true
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Agregar Servicio")
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(serviciosFiltrados) { servicio ->
-                ServicioCard(
-                    servicio = servicio,
-                    onEdit = {
-                        editingServicio = it
-                        showDialog = true
-                    },
-                    onDelete = { servicioViewModel.deleteServicio(it) }
-                )
+            // Barra de búsqueda
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Buscar servicios...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Resumen
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "📊 Catálogo de Servicios",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Total de servicios: ${servicios.size}")
+                    Text("Mostrando: ${serviciosFiltrados.size} servicios")
+
+                    val costoPromedio = servicios.map { it.costo }.average()
+                    if (!costoPromedio.isNaN()) {
+                        Text("Costo promedio: $${String.format("%.2f", costoPromedio)}")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn {
+                items(serviciosFiltrados) { servicio ->
+                    ServicioCard(
+                        servicio = servicio,
+                        onEdit = {
+                            editingServicio = it
+                            showDialog = true
+                        },
+                        onDelete = { servicioViewModel.deleteServicio(it) }
+                    )
+                }
             }
         }
     }
